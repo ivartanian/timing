@@ -1,19 +1,24 @@
 package domain;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(of = {"dateTime", "description"})
 public class Event {
-    private final ObjectProperty<LocalDateTime> dateTime;
-    private final StringProperty description;
+    private ObjectProperty<LocalDateTime> dateTime;
+    private StringProperty description;
+    private BooleanProperty done;
 
-    public Event(LocalDateTime dateTime, String description) {
+    public Event(LocalDateTime dateTime, String description, boolean done) {
         this.dateTime = new SimpleObjectProperty<>(dateTime);
         this.description = new SimpleStringProperty(description);
+        this.done = new SimpleBooleanProperty(done);
+    }
+
+    public void setDone(boolean done) {
+        this.done.set(done);
     }
 
     public LocalDateTime getDateTime() {
@@ -38,5 +43,13 @@ public class Event {
 
     public void setDescription(String description) {
         this.description.set(description);
+    }
+
+    public boolean isDone() {
+        return done.get();
+    }
+
+    public BooleanProperty doneProperty() {
+        return done;
     }
 }
