@@ -3,24 +3,23 @@ package fxml;
 
 import app.Main;
 import domain.Event;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import schedulers.ScedulerHandler;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static app.Main.FORMATTER;
-import static java.time.temporal.ChronoField.HOUR_OF_DAY;
-import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
-import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
+import static java.util.Objects.nonNull;
 
 public class EventOverviewController {
-
 
 
     @FXML
@@ -58,6 +57,22 @@ public class EventOverviewController {
         // Инициализация таблицы событий с двумя столбцами.
         timeColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().dateTimeProperty().get().format(FORMATTER)));
         descriptionColumn.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
+
+//        Обновляет цвет
+        eventTable.setRowFactory(param -> new TableRow<Event>() {
+            @Override
+            protected void updateBounds() {
+                super.updateBounds();
+                Event item = getItem();
+                if (nonNull(item)) {
+                    boolean done = item.isDone();
+                    if (done)
+                        this.setStyle("-fx-background-color:#90ee90");
+                    else
+                        this.setStyle("-fx-background-color:#e9f0e6");
+                }
+            }
+        });
     }
 
     /**
@@ -71,6 +86,10 @@ public class EventOverviewController {
         LocalDate now = LocalDate.now();
         // Добавление в таблицу данных из наблюдаемого списка
         showEventByDate(now);
+
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(() -> Platform.runLater(new ScedulerHandler(main)), 0, 10, TimeUnit.SECONDS);
+
     }
 
     private void showEventByDate(LocalDate now) {
@@ -87,7 +106,17 @@ public class EventOverviewController {
 
     @FXML
     private void onClickedAddEvent() {
-        main.showCreateEventDialog(datePicker.getValue());
+        main.showCreateEventDialog(datePicker.getValue(), null);
+    }
+
+    @FXML
+    private void onMouseClickedEditEvent(MouseEvent event) {
+        if (event.getClickCount() == 2) {
+            Event selectedItem = eventTable.getSelectionModel().getSelectedItem();
+            if (nonNull(selectedItem)) {
+                main.showCreateEventDialog(selectedItem.getDateTime().toLocalDate(), selectedItem);
+            }
+        }
     }
 
 }

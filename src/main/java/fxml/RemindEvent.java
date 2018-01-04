@@ -42,6 +42,7 @@ public class RemindEvent {
     private void handleOk() {
         main.getReadyEvent().forEach(event -> event.setDone(true));
         main.getReadyEvent().clear();
+        main.setActiveReminderDialog(false);
         okClicked = true;
         dialogStage.close();
 
@@ -52,6 +53,7 @@ public class RemindEvent {
      */
     @FXML
     private void handleCancel() {
+        main.setActiveReminderDialog(false);
         dialogStage.close();
     }
 
@@ -77,5 +79,13 @@ public class RemindEvent {
 
     public void setMain(Main main) {
         this.main = main;
+    }
+
+    public TableView<Event> getEventTable() {
+        return eventTable;
+    }
+
+    public void setEventTable(TableView<Event> eventTable) {
+        this.eventTable = eventTable;
     }
 }

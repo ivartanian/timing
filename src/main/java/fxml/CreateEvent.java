@@ -24,6 +24,7 @@ public class CreateEvent {
     // Ссылка на главное приложение.
     private Main main;
 
+    private Event event;
 
     @FXML
     private DatePicker datePicker;
@@ -78,7 +79,16 @@ public class CreateEvent {
             if (isInputValid()) {
                 Integer hours = Integer.valueOf(hoursTextField.getText());
                 Integer minutes = Integer.valueOf(minutesTextField.getText());
-                main.getEventData().add(new Event(LocalDateTime.of(datePicker.getValue(), LocalTime.of(hours, minutes)), eventDescriptionTextArea.getText(), false));
+                Event event;
+                if (nonNull(this.event)){
+                    event = this.event;
+                    event.setDateTime(LocalDateTime.of(datePicker.getValue(), LocalTime.of(hours, minutes)));
+                    event.setDescription(eventDescriptionTextArea.getText());
+                    event.setDone(false);
+                }else {
+                    event = new Event(LocalDateTime.of(datePicker.getValue(), LocalTime.of(hours, minutes)), eventDescriptionTextArea.getText(), false);
+                    main.getEventData().add(event);
+                }
 
                 okClicked = true;
                 dialogStage.close();
@@ -134,5 +144,19 @@ public class CreateEvent {
 
     public void setMain(Main main) {
         this.main = main;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
+        if (nonNull(event)){
+            datePicker.setValue(event.getDateTime().toLocalDate());
+            hoursTextField.setText(String.valueOf(event.getDateTime().getHour()));
+            minutesTextField.setText(String.valueOf(event.getDateTime().getMinute()));
+            eventDescriptionTextArea.setText(event.getDescription());
+        }
     }
 }

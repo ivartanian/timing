@@ -5,6 +5,7 @@ import fxml.CreateEvent;
 import fxml.EventOverviewController;
 import fxml.RemindEvent;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -22,6 +23,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoUnit;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
@@ -38,6 +44,8 @@ public class Main extends Application {
     private ObservableList<Event> eventData = FXCollections.observableArrayList();
     private ObservableSet<Event> readyEvent = FXCollections.observableSet();
 
+    private boolean isActiveReminderDialog;
+
     private Stage primaryStage;
     private BorderPane rootLayout;
 
@@ -46,7 +54,6 @@ public class Main extends Application {
         eventData.add(new Event(LocalDateTime.now().plus(1, ChronoUnit.HOURS), "Event 2", false));
         eventData.add(new Event(LocalDateTime.now().plus(6, ChronoUnit.MINUTES), "Event 3", false));
         eventData.add(new Event(LocalDateTime.now().plus(1, ChronoUnit.DAYS), "Event 4", false));
-        new ScedulerHandler(this).setupScedulerHandler();
     }
 
     @Override
@@ -55,7 +62,6 @@ public class Main extends Application {
         this.primaryStage.setTitle("Timing");
 
         initRootLayout();
-
     }
 
     /**
@@ -81,7 +87,7 @@ public class Main extends Application {
         }
     }
 
-    public boolean showCreateEventDialog(LocalDate localDate) {
+    public boolean showCreateEventDialog(LocalDate localDate, Event event) {
         if (isNull(localDate)){
             return false;
         }
@@ -93,7 +99,7 @@ public class Main extends Application {
 
             // Create the dialog Stage.
             Stage dialogStage = new Stage();
-            dialogStage.setTitle("Create event");
+            dialogStage.setTitle("Create/Update event");
             dialogStage.initModality(Modality.WINDOW_MODAL);
             dialogStage.initOwner(primaryStage);
             Scene scene = new Scene(page);
@@ -104,6 +110,7 @@ public class Main extends Application {
             controller.setDialogStage(dialogStage);
             controller.setLocalDate(localDate);
             controller.setMain(this);
+            controller.setEvent(event);
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
@@ -146,6 +153,7 @@ public class Main extends Application {
             RemindEvent controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setMain(this);
+            controller.getEventTable().setItems(FXCollections.observableArrayList(readyEvent));
 
             // Show the dialog and wait until the user closes it
             dialogStage.showAndWait();
@@ -156,5 +164,13 @@ public class Main extends Application {
             return false;
         }
 
+    }
+
+    public boolean isActiveReminderDialog() {
+        return isActiveReminderDialog;
+    }
+
+    public void setActiveReminderDialog(boolean activeReminderDialog) {
+        isActiveReminderDialog = activeReminderDialog;
     }
 }
