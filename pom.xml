@@ -31,10 +31,22 @@
         <plugins>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+
+                <configuration>
+                    <target>1.8</target>
+                    <source>1.8</source>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>com.zenjava</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>8.8.3</version>
                 <configuration>
+                    <j2seVersion>1.8</j2seVersion>
                     <mainClass>app.Main</mainClass>
                 </configuration>
             </plugin>
