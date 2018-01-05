@@ -69,7 +69,7 @@ public class EventOverviewController {
                     if (done)
                         this.setStyle("-fx-background-color:#90ee90");
                     else
-                        this.setStyle("-fx-background-color:#e9f0e6");
+                        this.setStyle("-fx-background-color:#f0eb6a");
                 }
             }
         });
